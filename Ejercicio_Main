@@ -1,0 +1,110 @@
+import java.util.Scanner;
+import java.awt.Color;
+import java.awt.Graphics;
+import javax.swing.JFrame;
+import java.swing. JPanel;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scan = new Scanner(System.in);
+        double x1, y1, x2, y2;
+
+        System.out.println("Ingrese la cantidad de rectángulos que ingresará: ");
+        int n = scan.nextInt();
+        ContainerRect contrec = new ContainerRect(n);
+
+        for(int i = 0; i < n; i++) {
+            System.out.println("\n" + (i + 1) + "° rectángulo:");
+            System.out.println("Ingrese la x de una esquina del 1er rectángulo: ");
+            x1 = scan.nextDouble();
+            System.out.println("Ingrese la y de una esquina del 1er rectángulo: ");
+            y1 = scan.nextDouble();
+
+            System.out.println("Ingrese la x de la esquina opuesta del rectángulo: ");
+            x2 = scan.nextDouble();
+            System.out.println("Ingrese la y de la esquina opuesta del rectángulo: ");
+            y2 = scan.nextDouble();
+            
+            contrec.addRectangulo(new Rectangulo(new Coordenada(x1, y1), new Coordenada(x2, y2)));
+        }
+
+        System.out.println("Rectángulo - Coordenadas - Distancia - Área\n" + contrec);
+        
+        System.out.println("\nSeleccione los rectangulos que desea comparar: ");
+        System.out.println("1° rectángulo: ");
+        int num1 = scan.nextInt();
+        Rectangulo a = contrec.searchRectangulo(num1);
+        System.out.println("2° rectángulo: ");
+        int num2 = scan.nextInt();
+        Rectangulo b = contrec.searchRectangulo(num2);
+        
+        if (Verificador.esSobrePos(a, b)) {
+            System.out.println("Los rectángulos se sobreponen.");
+            Rectangulo r = rectanguloSobre(a, b);
+            System.out.println("El área de superposición es: " + r.calcularArea());
+        }
+        if (Verificador.esJunto(a, b)) {
+            System.out.println("Los rectángulos están juntos.");
+        }
+        if (Verificador.esDisjunto(a, b)) {
+            System.out.println("Los rectángulos están separados.");
+        }
+    }
+
+    public static Rectangulo rectanguloSobre(Rectangulo a, Rectangulo b) {
+        double coordx[] = { a.getEsquina1().getX(), a.getEsquina2().getX(), b.getEsquina1().getX(),
+                b.getEsquina2().getX() };
+        for (int i = 0; i < coordx.length - 1; i++) {
+            for (int j = 0; j < (coordx.length - 1 - i); j++) {
+                if (coordx[j] > coordx[j + 1]) {
+                    double temp = coordx[j];
+                    coordx[j] = coordx[j + 1];
+                    coordx[j + 1] = temp;
+                }
+            }
+        }
+
+        double coordy[] = { a.getEsquina1().getY(), a.getEsquina2().getY(), b.getEsquina1().getY(),
+                b.getEsquina2().getY() };
+        for (int i = 0; i < coordy.length - 1; i++) {
+            for (int j = 0; j < (coordy.length - 1 - i); j++) {
+                if (coordy[j] > coordy[j + 1]) {
+                    double temp = coordy[j];
+                    coordy[j] = coordy[j + 1];
+                    coordy[j + 1] = temp;
+                }
+            }
+        }
+
+        return new Rectangulo(new Coordenada(coordx[1], coordy[1]), new Coordenada(coordx[2], coordy[2]));
+    }
+
+    public class PlanoCartesiano extends JPanel {
+        double x1, y2, ancho1, altura1;
+        
+        public void PlanoCartesiano(double x, double y, double ancho, double altura) {
+        	this.x = x;
+        	this.y = y;
+        	this.ancho = ancho;
+        	this.altura = altura;
+        }
+        
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            
+            g.setColor(Color.BLUE);
+            g.fillRect(x, y, ancho, altura);
+        }
+
+        public void crearPanel(Rectangulo r1, Rectangulo r2) {
+            JFrame frame = new JFrame("Rectángulos");
+            PlanoCartesiano panel = new PlanoCartesiano();
+            
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(400, 300);
+            frame.add(panel);
+            frame.setVisible(true);
+        }
+    }
+}
